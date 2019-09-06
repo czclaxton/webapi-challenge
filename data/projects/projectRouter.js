@@ -8,6 +8,44 @@ router.get("/:id", validateProjectId, (req, res) => {
   res.status(200).json(req.project);
 });
 
+router.post("/", validateProjectId, (req, res) => {
+  const project = req.body;
+
+  projdb
+    .insert(project)
+    .then(project => res.status(201).json(project))
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({ error: "error adding new post" });
+    });
+});
+
+router.put("/:id", validateProjectId, (req, res) => {
+  const id = req.params.id;
+  const project = req.body;
+
+  projdb.update(id, project).then(() => {
+    projdb
+      .get(id)
+      .then(project => res.status(200).json(project))
+      .catch(err => {
+        console.log(err);
+        res.status(500).json({ error: "error updating project" });
+      });
+  });
+});
+
+router.delete("/:id", validateProjectId, (req, res) => {
+  const id = req.params.id;
+  projdb
+    .remove(id)
+    .then(() => res.status(204).end())
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({ error: "failed to delete project" });
+    });
+});
+
 // CUSTOM MIDDLEWARE
 
 function validateProjectId(req, res, next) {
